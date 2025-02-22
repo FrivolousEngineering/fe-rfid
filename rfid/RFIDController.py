@@ -28,6 +28,12 @@ class RFIDController:
     def start(self):
         threading.Thread(target=self._handleScanLoop, daemon=True).start()
 
+    def getDeviceByName(self, name: str) -> Optional[RFIDDevice]:
+        for device in self._devices.values():
+            if device.name == name:
+                return device
+        return None
+
     def _handleScanLoop(self):
         while True:
             logging.info("Checking for devices")
