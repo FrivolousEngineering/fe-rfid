@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "fe-rfid"
+version = "1.0.0"
+description = "Python RFID reader/writer library and tools"
+authors = ["Arjen Hiemstra <ahiemstra@heimr.nl>"]
+license = "LGPL-V2+"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pyserial = "^3.5"
+click = "^8.1.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
