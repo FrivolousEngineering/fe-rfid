@@ -5,6 +5,8 @@ import logging
 import threading
 import time
 
+from serial.serialutil import SerialException
+
 
 class RFIDDevice:
     def __init__(self, port: str, baud_rate: int,
@@ -126,17 +128,18 @@ class RFIDDevice:
 
         try:
             self._send_thread.join()
-            self._send_thread = threading.Thread(target=self._handleSerialSend(), daemon=True)
+            self._send_thread = threading.Thread(target=self._handleSerialSend, daemon=True)
         except RuntimeError:
             pass
-
-        self._serial = serial.Serial(self._port, self._baud_rate, timeout=3)
+        try:
+            self._serial = serial.Serial(self._port, self._baud_rate, timeout=3)
+        except SerialException:
+            self._serial = None
 
         if self._serial is not None:
             # Call later
             threading.Timer(2, self._startSerialThreads).start()
         else:
-            logging.warning("Unable to create serial. Attempting again in a few seconds.")
             # Check again after a bit of time has passed
             self._recreate_serial_timer = threading.Timer(self._serial_recreate_time, self._createSerial)
             self._recreate_serial_timer.start()
