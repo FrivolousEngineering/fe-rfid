@@ -69,7 +69,7 @@ class RFIDDevice:
         if not self.ready:
             logging.warning(f"Device {self._port} not ready")
 
-        self._sendCommand(f"NAME {name}")
+        self.sendRawCommand(f"NAME {name}")
 
     def write(self, type: str, traits: list[str]):
         if type.upper() not in ("RAW", "REFINED", "BLOOD"):
@@ -89,7 +89,7 @@ class RFIDDevice:
 
         self._writing = True
         command = f"WRITESAMPLE {type.upper()} {" ".join(traits)}"
-        self._sendCommand(command)
+        self.sendRawCommand(command)
         self._request_trait_info = True
 
 
@@ -144,23 +144,25 @@ class RFIDDevice:
             self._recreate_serial_timer = threading.Timer(self._serial_recreate_time, self._createSerial)
             self._recreate_serial_timer.start()
 
-    def _sendCommand(self, command=""):
+    def sendRawCommand(self, command: str) -> bool:
         # TODO: add command validity checking.
         if self._serial:
             self._serial.write(b"\n")
             command += "\n"
             self._serial.write(command.encode('utf-8'))
+            return True
         else:
-            logging.error("Unable to write command %s without serial connection" % command)
+            logging.error(f"Unable to write command '{command}' without serial connection")
+            return False
 
     def _handleSerialSend(self):
         logging.info(f"Starting serial send thread for {self._port}")
         while self._serial:
             try:
                 if self.name is None:
-                    self._sendCommand("NAME")
+                    self.sendRawCommand("NAME")
                 if self._request_trait_info:
-                    self._sendCommand("READ ALL")
+                    self.sendRawCommand("READ ALL")
                     self._request_trait_info = False
                 time.sleep(0.5)
             except serial.SerialException:
