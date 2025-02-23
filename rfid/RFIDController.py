@@ -29,10 +29,11 @@ class RFIDController:
         threading.Thread(target=self._handleScanLoop, daemon=True).start()
 
     def getDeviceByName(self, name: str) -> Optional[RFIDDevice]:
-        for device in self._devices.values():
-            if device.name == name:
-                return device
-        return None
+        with self._lock:
+            for device in self._devices.values():
+                if device.name == name:
+                    return device
+            return None
 
     def _handleScanLoop(self):
         while True:
@@ -46,7 +47,8 @@ class RFIDController:
                                                 self._on_card_detected_callback,
                                                 self._on_card_lost_callback,
                                                 self._traits_detected_callback)
-                            self._devices[port] = device
+                            with self._lock:
+                                self._devices[port] = device
                         except Exception:
                             pass
             time.sleep(5)  # Scan every 5 seconds
