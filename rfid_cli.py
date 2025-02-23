@@ -38,7 +38,7 @@ def write_traits(device: rfid.RFIDDevice, type: str, traits: list[str], timeout)
     while not device.ready:
         time.sleep(0.1)
 
-    device.write(type, traits)
+    device.writeSample(type, traits)
 
     start = time.perf_counter()
     while device.writing and time.perf_counter() - start < timeout:

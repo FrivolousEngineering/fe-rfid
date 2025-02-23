@@ -71,11 +71,11 @@ class RFIDDevice:
 
         self.sendRawCommand(f"NAME {name}")
 
-    def write(self, type: str, traits: list[str]):
-        if type.upper() not in ("RAW", "REFINED", "BLOOD"):
-            raise ValueError(f"Invalid type for sample: {type}")
+    def writeSample(self, sample_type: str, traits: list[str]):
+        if sample_type.upper() not in ("RAW", "REFINED", "BLOOD"):
+            raise ValueError(f"Invalid type for sample: {sample_type}")
 
-        match type.upper():
+        match sample_type.upper():
             case "RAW":
                 if len(traits) != 4:
                     raise ValueError("Incorrect traits for Raw sample")
@@ -85,13 +85,12 @@ class RFIDDevice:
             case "BLOOD":
                 if len(traits) != 3:
                     raise ValueError("Incorrect traits for Blood sample")
-            case _: raise ValueError(f"Unrecognised sample type {type}")
+            case _: raise ValueError(f"Unrecognised sample type {sample_type}")
 
         self._writing = True
-        command = f"WRITESAMPLE {type.upper()} {" ".join(traits)}"
+        command = f"WRITESAMPLE {sample_type.upper()} {" ".join(traits)}"
         self.sendRawCommand(command)
         self._request_trait_info = True
-
 
     def _startSerialThreads(self) -> None:
         self._listen_thread.start()
