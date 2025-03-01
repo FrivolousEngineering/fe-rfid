@@ -77,8 +77,9 @@ class RFIDDevice:
 
         match sample_type.upper():
             case "RAW":
-                if len(traits) != 4:
-                    raise ValueError(f"Incorrect number of traits for Raw sample. Got {len(traits)} should have gotten 4")
+                if len(traits) != 5:
+                    print(traits)
+                    raise ValueError(f"Incorrect number of traits for Raw sample. Got {len(traits)} should have gotten 5")
             case "REFINED":
                 if len(traits) != 5:
                     raise ValueError(f"Incorrect number of traits for Refined sample. Got {len(traits)} should have gotten 5")
