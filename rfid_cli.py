@@ -38,6 +38,11 @@ def write_traits(device: rfid.RFIDDevice, type: str, traits: list[str], timeout)
     while not device.ready:
         time.sleep(0.1)
 
+    print("Waiting for tag on device", device.name)
+
+    while device.card_id is None:
+        time.sleep(0.1)
+
     device.writeSample(type, traits)
 
     start = time.perf_counter()
@@ -46,7 +51,7 @@ def write_traits(device: rfid.RFIDDevice, type: str, traits: list[str], timeout)
 
 
 @click.group()
-@click.option("--baud-rate", default = 115200, help ri= "The baud rate to use for communicating.")
+@click.option("--baud-rate", default = 115200, help = "The baud rate to use for communicating.")
 @click.option("--device", default = "", help = "The device to communicate with. If unset, will scan for a device.")
 @click.option("--timeout", default = 2, help = "Time to wait for device.")
 @click.pass_context
@@ -150,6 +155,7 @@ def name(context, set: str):
         while not device.ready:
             time.sleep(0.1)
         device.set_name(set)
+        time.sleep(1)
 
 
 if __name__ == "__main__":
