@@ -214,8 +214,8 @@ class RFIDDevice:
                             logging.warning("Traits were detected before a name was known, delaying callback")
                     else:
                         logging.warning("READ ALL FAILED :(")
-                elif line.startswith("Name: "):
-                    self.name = line.replace("Name: ", "")
+                elif line.startswith("Name:"):
+                    self.name = line.replace("Name:", "").strip()
                     logging.info(f"Device {self._port} identified as {self.name}")
                     if self._delayed_emit:
                         self._delayed_emit = False
