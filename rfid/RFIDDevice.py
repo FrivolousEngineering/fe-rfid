@@ -174,7 +174,7 @@ class RFIDDevice:
         logging.info(f"Starting serial listen thread for {self._port}")
         while self._serial:
             try:
-                line = self._serial.readline().decode("utf-8").strip()
+                line = self._serial.readline().decode("utf-8", errors = "ignore").strip()
                 if line.startswith("Tag found:"):
                     response = line.replace("Tag found: ", "")
                     arguments = response.split(" ")
