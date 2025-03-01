@@ -274,6 +274,12 @@ void processCommand(String command)
         handleReadCommand(argument);
     } else if (strcmp(keyword, "NAME") == 0) {
         handleNameCommand(argument);
+    } else if (strcmp(keyword, "DEPLETESAMPLE") == 0){ // Mark the sample as depleted
+        depleted_to_write = "DEPLETED";
+        Serial.println("Marked sample as depleted");
+    } else if (strcmp(keyword, "ACTIVATESAMPLE") == 0) {
+        depleted_to_write = "ACTIVE";
+        Serial.println("Marked sample as active");
     } else {
         Serial.print("Unknown command: ");
         Serial.println(keyword);
