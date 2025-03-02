@@ -1,4 +1,5 @@
 from typing import List, Callable, Dict, Optional
+from pathlib import Path
 
 import serial
 import logging
@@ -17,7 +18,12 @@ class RFIDController:
                  on_card_detected_callback: Callable[[str, str], None],
                  on_card_lost_callback: Callable[[str, str], None],
                  traits_detected_callback: Callable[[str, List[str]], None],
+                 root_path: Path | None = None,
+                 patterns: list[str] | None = None,
                  baud_rate=115200):
+        self._root_path = root_path if root_path is not None else Path("/dev")
+        self._patterns = patterns if patterns is not None else ["ttyACM*", "ttyUSB*"]
+
         self._baud_rate = baud_rate
         self._devices: Dict[str, RFIDDevice] = {}
         self._on_card_detected_callback = on_card_detected_callback
@@ -38,19 +44,20 @@ class RFIDController:
     def _handleScanLoop(self):
         while True:
             logging.info("Checking for devices")
-            for i in range(0, 10):
-                for prefix in ["/dev/ttyUSB", "/dev/ttyACM"]:
-                    port = f"{prefix}{i}"
-                    if port not in self._devices:
-                        try:
-                            device = RFIDDevice(port, self._baud_rate,
-                                                self._on_card_detected_callback,
-                                                self._on_card_lost_callback,
-                                                self._traits_detected_callback)
-                            with self._lock:
-                                self._devices[port] = device
-                        except Exception:
-                            pass
+            for pattern in self._patterns:
+                for path in self._root_path.glob(pattern):
+                    if path in self._devices:
+                        continue
+
+                    try:
+                        device = RFIDDevice(str(path), self._baud_rate,
+                                            self._on_card_detected_callback,
+                                            self._on_card_lost_callback,
+                                            self._traits_detected_callback)
+                        with self._lock:
+                            self._devices[path] = device
+                    except Exception:
+                        logging.exception("Failed creating RFID device")
             time.sleep(5)  # Scan every 5 seconds
 
     def stop(self):
