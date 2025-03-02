@@ -41,6 +41,20 @@ class RFIDController:
                     return device
             return None
 
+    def list_devices(self) -> list[RFIDDevice]:
+        devices = []
+        for pattern in self._patterns:
+            for path in self._root_path.glob(pattern):
+                try:
+                    device = RFIDDevice(str(path), self._baud_rate,
+                                        self._on_card_detected_callback,
+                                        self._on_card_lost_callback,
+                                        self._traits_detected_callback)
+                    devices.append(device)
+                except Exception:
+                    logging.exception(f"Failed creating RFID device for {path}")
+        return devices
+
     def _handleScanLoop(self):
         while True:
             logging.info("Checking for devices")
