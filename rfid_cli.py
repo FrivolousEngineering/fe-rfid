@@ -27,9 +27,18 @@ def create_rfid(baud_rate: int, device_name: str):
             traits_detected_callback = on_traits_detected,
         )
     else:
-        controller = rfid.RFIDController()
-        print("TODO")
-        exit(1)
+        controller = rfid.RFIDController(
+            on_card_detected,
+            on_card_lost,
+            on_traits_detected,
+            baud_rate = baud_rate
+        )
+
+        devices = controller.list_devices()
+        if not devices:
+            raise RuntimeError("No devices found")
+
+        device = devices[0]
 
     return device
 
