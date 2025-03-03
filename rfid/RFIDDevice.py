@@ -29,6 +29,7 @@ class RFIDDevice:
         self._on_card_detected_callback = on_card_detected_callback
         self._on_card_lost_callback = on_card_lost_callback
         self._traits_detected_callback = traits_detected_callback
+        self._custom_response_callback = None
         self._detected_card = None
         self._detected_traits = None
         self._delayed_emit = False  # If a card was detected before a name, we delay the callback
@@ -40,6 +41,10 @@ class RFIDDevice:
         self._recreate_serial_timer = None
         self._serial_recreate_time = 5  # in seconds
         self.start()
+
+
+    def setCustomResponseCallback(self, callback):
+        self._custom_response_callback = callback
 
     @property
     def ready(self) -> bool:
@@ -225,8 +230,12 @@ class RFIDDevice:
                             self._traits_detected_callback(self.name, self._detected_traits)
                 elif line == "Write complete!":
                     self._writing = False
+                elif line == "":
+                    # Got an empty line, ignore
+                    pass
                 else:
-                    print(line)
+                    if self._custom_response_callback:
+                        self._custom_response_callback(line)
             except serial.SerialException:
                 self._recreateSerial()
             except Exception as e:
