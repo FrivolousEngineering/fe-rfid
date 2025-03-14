@@ -167,5 +167,52 @@ def name(context, set: str):
         time.sleep(1)
 
 
+@cli.command()
+def list():
+    print("""Actions:
+- Creating
+- Destroying
+- Increasing
+- Decreasing
+- Expanding
+- Contracting
+- Fortifying
+- Deteriorating
+- Lightening
+- Encumbering
+- Heating
+- Cooling
+- Conducting
+- Insulating
+- Absorbing
+- Releasing
+- Solidifying
+
+Targets:
+- Energy
+- Light
+- Sound
+- Flesh
+- Krystal
+- Gas
+- Liquid
+- Solid
+- Mind
+- Plant
+
+Purities:
+- Polluted
+- Tarnished
+- Dirty
+- Blemished
+- Impure
+- Unblemished
+- Lucid
+- Stainless
+- Pristine
+- Immaculate
+- Perfect""")
+
+
 if __name__ == "__main__":
     cli()
