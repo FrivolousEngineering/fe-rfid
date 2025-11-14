@@ -43,6 +43,29 @@ def create_rfid(baud_rate: int, device_name: str):
     return device
 
 
+def read_traits(device: rfid.RFIDDevice, timeout):
+    while not device.ready:
+        time.sleep(0.1)
+
+    print("Waiting for tag on device", device.name)
+
+    while device.card_id is None:
+        time.sleep(0.1)
+
+    print("Detected card", device.card_id)
+
+    start = time.perf_counter()
+    while device.traits is None and time.perf_counter() - start < timeout:
+        time.sleep(0.1)
+
+    if device.traits:
+        print("Read traits:")
+        for trait in device.traits:
+            print(f"- {trait}")
+    else:
+        print("No traits found. Tag empty?")
+
+
 def write_traits(device: rfid.RFIDDevice, type: str, traits: list[str], timeout):
     while not device.ready:
         time.sleep(0.1)
@@ -57,6 +80,10 @@ def write_traits(device: rfid.RFIDDevice, type: str, traits: list[str], timeout)
     start = time.perf_counter()
     while device.writing and time.perf_counter() - start < timeout:
         time.sleep(0.1)
+
+    print("Reading result")
+
+    read_traits(device, timeout)
 
 
 @click.group()
@@ -75,27 +102,7 @@ def cli(context, baud_rate: int, device: str, timeout: float):
 @click.pass_context
 def read(context):
     device = create_rfid(context.obj.get("baud_rate"), context.obj.get("device"))
-
-    while not device.ready:
-        time.sleep(0.1)
-
-    print("Waiting for tag on device", device.name)
-
-    while device.card_id is None:
-        time.sleep(0.1)
-
-    print("Detected card", device.card_id)
-
-    start = time.perf_counter()
-    while device.traits is None and time.perf_counter() - start < context.obj["timeout"]:
-        time.sleep(0.1)
-
-    if device.traits:
-        print("Read traits:")
-        for trait in device.traits:
-            print(f"- {trait}")
-    else:
-        print("No traits found. Tag empty?")
+    read_traits(device, context.obj["timeout"])
 
 
 @cli.group()
